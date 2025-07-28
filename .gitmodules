@@ -1,0 +1,3 @@
+[submodule "varion-rust"]
+	path = varion-rust
+	url = https://github.com/KimKyuRae/varion-rust.git
