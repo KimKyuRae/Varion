@@ -1,0 +1,372 @@
+::start
+@background: images/village_square.png
+@characters: images/elder.png, images/player.png
+@who: 장로
+@action: set reputation = 5
+@action: set has_map = 0
+@action: set has_silver_sword = 0
+@action: set quest_accepted = 0
+@action: set monster_defeated = 0
+
+이방인이여, 우리 마을에 온 것을 환영하네. 하지만 지금은 환영 인사를 길게 할 때가 아니야. 우리 마을은 어둠의 숲에서 풍겨오는 사악한 기운 때문에 고통받고 있네.
+
+* 무슨 일이죠? => ask_about_curse
+* 제가 도울 일이 있을까요? => offer_help
+* 저는 상관없는 일입니다. => ignore_plea
+@if reputation > 3
+* 돕는 건 좋은데, 보상은 있나요? => ask_for_reward 
+
+::ask_about_curse
+@who: 장로
+
+숲의 심장부에서 고대 악이 깨어났네. 그 여파로 동물들은 사나워지고, 시냇물은 검게 변했지. 이대로 두면 우리 마을뿐만 아니라 온 세상이 위험해질 걸세.
+
+* 끔찍하군요. 제가 돕겠습니다. => offer_help
+* 제가 뭘 할 수 있겠어요? => express_doubt
+* 여전히 제 알 바 아닙니다. => ignore_plea
+
+::offer_help
+@who: 장로
+@action: set quest_accepted = 1
+
+오, 정말인가! 자네 같은 영웅을 기다리고 있었네. 숲의 심장부로 가서 '그림자 꽃'을 꺾어 와주게. 그 꽃만이 악의 기운을 잠재울 수 있다네.
+
+* 알겠습니다. 바로 출발하죠. => enter_forest_gate
+* 숲에 대해 더 알려주세요. => ask_forest_details
+* 혹시 도움이 될 만한 물건이 있나요? => ask_for_item
+
+::ignore_plea
+@who: 장로
+
+그런가... 자네 같은 사람이 있기에 세상이 점점 더 각박해지는 것이겠지. 우리에게 더 이상 볼일이 없다면 떠나가게.
+
+* (마을을 떠난다) => end_bad_coward
+
+::ask_for_reward
+@who: 장로
+@action: set reputation = reputation + 1
+자네, 용감하긴 하지만 꽤나 현실적이군. 좋아, 그 배짱이 마음에 드네.
+이 일을 해결해주면 우리 마을의 가보인 '은 장검'을 주겠네. 숲의 괴물들에게 아주 효과적일 걸세.
+
+* 그 제안, 받아들이죠. => offer_help_after_reward
+* 검만 먼저 주시면 안 될까요? => ask_sword_first
+* 겨우 그 정도입니까? => insult_elder
+
+::offer_help_after_reward
+@who: 장로
+@action: set quest_accepted = 1
+@action: set has_silver_sword = 1
+
+여기 약속한 검일세. 조심해서 다녀오게나.
+
+* 감사합니다. 믿음에 보답하겠습니다. => enter_forest_gate
+
+::ask_sword_first
+@who: 장로
+@action: set reputation = reputation - 3
+
+이런, 사람을 잘못 봤군. 자네는 영웅이 아니라 단순한 도둑놈이었어! 썩 꺼지게! 
+
+* (마을을 떠난다) => end_bad_thief
+
+::insult_elder
+@who: 장로
+@action: set reputation = 0
+
+뭐라고? 이 무례한 놈! 우리 마을의 성의를 무시하다니! 당장 내 눈앞에서 사라지게! 
+
+* (마을을 떠난다) => end_bad_insult
+
+::express_doubt
+@who: 장로
+
+자신을 믿게, 젊은이. 자네의 눈에는 선한 의지가 서려 있어. 작은 용기가 세상을 바꿀 수 있다네.
+
+* 당신 말이 맞아요. 해보겠습니다. => offer_help
+* 죄송하지만, 전 못하겠습니다. => ignore_plea
+
+::ask_forest_details
+@who: 장로
+
+어둠의 숲은 길이 복잡하고 위험한 함정들이 많다네. 오래전, 숲을 탐험했던 사냥꾼이 지도를 만들었다고 들었네. 지금은 아마 마을 주점에서 시간을 보내고 있을 걸세.
+
+* 좋은 정보 감사합니다. => enter_forest_gate
+* 사냥꾼을 만나봐야겠군요. => go_to_tavern
+
+::ask_for_item
+@who: 장로
+
+맨몸으로 가기엔 위험하지. 마침 대장간에 쓸만한 물건이 있을지도 모르겠군. 한번 가보게나.
+
+* 감사합니다. => go_to_blacksmith
+
+::go_to_tavern
+@background: images/tavern.png
+@characters: images/hunter.png, images/player.png
+@who: 사냥꾼
+
+(사냥꾼은 술에 취해 테이블에 엎드려 있다.)
+
+* 저기, 말씀 좀... => talk_to_hunter
+* (조용히 술을 한잔 주문한다) => buy_drink_for_hunter
+
+::talk_to_hunter
+@who: 사냥꾼
+
+으... 시끄러워... 말 걸지 마. 저리 가...
+
+* (어깨를 흔들어 깨운다) => wake_hunter_forcefully
+* (그냥 나간다) => leave_tavern
+
+::wake_hunter_forcefully
+@who: 사냥꾼
+@action: set reputation = reputation - 1
+
+아, 뭐야! 귀찮게 하지 말라니까! 숲 지도는 무슨... 술이나 사 오면 생각해 보지.
+
+* 여기 술값입니다. => buy_drink_for_hunter
+* 됐습니다. => leave_tavern
+
+::buy_drink_for_hunter
+@who: 사냥꾼
+@action: set has_map = 1
+
+오... 뭘 좀 아는 친구로군. (술을 단숨에 들이켠다) 그래, 숲 지도를 찾는다고? 위험한 곳인데... 이걸 가져가게. 부디 몸조심하라고. 
+
+* 정말 감사합니다! => leave_tavern_with_map
+
+::leave_tavern
+@who: 플레이어
+
+(사냥꾼에게서는 더 이상 얻을 정보가 없어 보인다. 주점을 나왔다.)
+
+* (마을 입구로 돌아간다) => enter_forest_gate
+
+::leave_tavern_with_map
+@who: 플레이어
+
+(지도를 손에 넣었다. 이제 숲으로 갈 준비가 된 것 같다.)
+
+* (마을 입구로 돌아간다) => enter_forest_gate
+
+::go_to_blacksmith
+@background: images/blacksmith.png
+@characters: images/blacksmith.png, images/player.png
+@who: 대장장이
+
+젊은이, 무슨 일로 왔나? 장로님께 이야기는 들었네.
+
+* 숲에 들어가려고 합니다. => talk_about_forest
+@if reputation > 6
+* 혹시... '은 장검'을 받을 수 있을까요? => ask_for_sword_direct 
+
+::talk_about_forest
+@who: 대장장이
+@action: set has_shield = 1
+
+맨몸으로는 위험할 텐데... 내가 만든 방패라도 가져가게. 행운을 비네. 
+
+* 정말 감사합니다. => enter_forest_gate
+
+::ask_for_sword_direct
+@who: 대장장이
+@action: set has_silver_sword = 1
+
+하하, 자네 평판이 자자하더군. 장로님도 허락하실 걸세. 이 '은 장검'이 자네의 여정에 도움이 되기를!
+
+* 은혜 잊지 않겠습니다. => enter_forest_gate
+
+::enter_forest_gate
+@background: images/forest_entrance.png
+@characters: images/player.png
+@who: 플레이어
+
+(당신은 이제 어둠의 숲 입구에 서 있다. 스산한 바람이 불어온다.)
+
+@if has_map == 1
+* (지도를 보며 길을 찾는다) => forest_path_with_map 
+* (감으로 길을 찾아 나선다) => forest_path_without_map
+
+::forest_path_with_map
+@who: 플레이어
+
+(지도는 숲 속의 샛길을 알려주고 있다. 덕분에 위험한 함정들을 피해 갈 수 있었다.)
+
+* (계속 나아간다) => reach_clearing
+
+::forest_path_without_map
+@who: 플레이어
+@action: set player_hp = player_hp - 2
+
+(길을 잃고 헤매다 날카로운 덫에 발을 다쳤다. 체력이 조금 감소했다.)
+@if player_hp > 0
+* (고통을 참고 계속 나아간다) => reach_clearing 
+* (상처가 너무 깊어 돌아간다) => end_bad_wounded
+
+::reach_clearing
+@background: images/forest_clearing.png
+@who: 플레이어
+
+(숲 속 공터에 도착했다. 저 멀리 동굴이 보이고, 그 입구에서 사악한 기운이 느껴진다.)
+
+* (동굴로 들어간다) => enter_cave_check
+* (준비가 더 필요할 것 같다. 마을로 돌아간다) => return_to_village
+
+::enter_cave_check
+@if quest_accepted == 1
+* (용기를 내어 동굴로 들어간다) => enter_cave_with_rep
+@if quest_accepted == 0
+* (아직은 때가 아닌 것 같다) => reach_clearing
+
+::enter_cave_with_rep
+@action: set reputation = reputation + 1
+* (동굴로 들어간다) => enter_cave
+
+::return_to_village
+@who: 장로
+
+돌아왔는가! 아직 '그림자 꽃'을 찾지 못한 것 같군. 다시 한번 용기를 내주게.
+
+* (다시 숲으로 간다) => enter_forest_gate
+
+::enter_cave
+@background: images/cave.png
+@who: 플레이어
+
+(동굴 안은 생각보다 어둡지 않다. 벽에 핀 이끼들이 섬뜩한 빛을 발하고 있다. 저 앞에 '그림자 꽃'과 함께 그것을 지키는 숲의 괴물이 보인다.)
+
+@if has_silver_sword == 1
+* (은 장검을 들고 괴물에게 돌진한다) => fight_monster_sword 
+* (일반 검으로 괴물에게 맞선다) => fight_monster_normal
+* (들키기 전에 꽃만 훔쳐 달아난다) => steal_flower
+
+::fight_monster_sword
+@who: 플레이어
+
+('은 장검'이 빛을 발하자 괴물이 비명을 지르며 힘을 잃는다. 손쉽게 괴물을 물리쳤다!)
+@action: set monster_defeated = 1
+
+* ('그림자 꽃'을 꺾는다) => get_flower
+
+::fight_monster_normal
+@who: 플레이어
+
+(당신의 검은 괴물의 질긴 피부에 상처 하나 내지 못했다. 결국, 당신은 괴물의 공격에 정신을 잃고 만다.)
+
+* (정신을 잃는다) => end_bad_defeated
+
+::steal_flower
+@who: 플레이어
+@action: set reputation = reputation - 2
+
+(당신은 괴물의 시선을 피해 조심스럽게 '그림자 꽃'을 꺾는 데 성공했다. 하지만 당신의 비겁한 행동에 마음이 편치 않다.)
+
+* (서둘러 동굴을 빠져나간다) => return_to_elder_with_flower
+
+::get_flower
+@who: 플레이어
+
+(당신은 마침내 '그림자 꽃'을 손에 넣었다. 이제 마을로 돌아갈 시간이다.)
+
+* (마을로 돌아간다) => return_to_elder_with_flower
+
+::return_to_elder_with_flower
+@background: images/village_square.png
+@characters: images/elder.png, images/player.png
+@who: 장로
+
+오, 돌아왔군! '그림자 꽃'을 가져왔는가!
+
+* 여기 있습니다. => give_flower
+* (아무 말 없이 꽃을 건넨다) => give_flower
+
+::give_flower
+@who: 장로
+@action: set quest_completed = 1
+정말 고맙네! 자네는 우리 마을의 영웅이야!
+
+* (이야기를 계속 듣는다) => check_monster_status
+
+::check_monster_status
+@if monster_defeated == 1
+* (괴물을 물리친 것에 대해 듣는다) => monster_defeated_true
+@if monster_defeated == 0
+* (괴물을 물리치지 못한 것에 대해 듣는다) => monster_defeated_false
+
+::monster_defeated_true
+@who: 장로
+@action: set reputation = reputation + 5
+게다가 숲의 괴물까지 물리쳤다고 들었네. 정말 대단하군!
+* 천만에요. => end_good_hero
+* 약속한 보상을 주시죠. => end_good_reward
+
+::monster_defeated_false
+@who: 장로
+@action: set reputation = reputation + 2
+비록 괴물을 물리치진 못했지만, 약속을 지켜준 것만으로도 대단하네.
+* 천만에요. => end_good_hero
+* 약속한 보상을 주시죠. => end_good_reward
+
+::end_good_hero
+@who: 장로
+
+자네의 겸손함에 다시 한번 감동했네. 우리 마을은 자네를 영원히 기억할 걸세. 언제든 다시 찾아주게.
+
+* (마을 사람들의 환호를 받으며 다음 모험을 떠난다) => end_final
+
+::end_good_reward
+@who: 장로
+* (보상을 받는다) => check_sword_reward
+
+::check_sword_reward
+@if has_silver_sword == 0
+* (은 장검과 보물을 받는다) => reward_with_sword
+@if has_silver_sword == 1
+* (다른 보물을 받는다) => reward_without_sword
+
+::reward_with_sword
+@who: 장로
+물론이지. 여기 약속했던 '은 장검'과 함께 우리 마을의 보물을 조금 더 얹었네. 자네의 앞날에 행운이 가득하길!
+* (두둑한 보상을 받고 마을을 떠난다) => end_final
+
+::reward_without_sword
+@who: 장로
+이미 검은 자네 손에 있으니, 대신 우리 마을의 가장 값진 보물을 주겠네. 자네의 앞날에 행운이 가득하길!
+* (두둑한 보상을 받고 마을을 떠난다) => end_final
+
+::end_bad_coward
+@who: 시스템
+
+당신은 마을의 위기를 외면했다. 당신의 무관심 속에서 마을이 어떻게 되었을지는 아무도 모른다.
+
+* (게임 종료) => end_final
+
+::end_bad_thief
+@who: 시스템
+
+당신은 영웅이 될 기회를 버리고 좀도둑으로 낙인찍혔다. 당신의 평판은 바닥을 치고, 다른 마을에서도 환영받지 못할 것이다.
+
+* (게임 종료) => end_final
+
+::end_bad_insult
+@who: 시스템
+
+당신은 순간의 감정을 참지 못하고 모두의 존경을 받는 장로를 모욕했다. 당신의 이름은 무례한 자의 대명사로 오랫동안 기억될 것이다.
+
+* (게임 종료) => end_final
+
+::end_bad_wounded
+@who: 시스템
+
+숲에서 입은 상처가 너무 깊었다. 당신은 결국 마을로 돌아가지 못하고 숲의 일부가 되었다.
+
+* (게임 종료) => end_final
+
+::end_bad_defeated
+@who: 시스템
+
+당신은 용감했지만 무모했다. 괴물에게 패배한 당신의 이야기는 모험가 지망생들에게 경고의 메시지로 전해질 것이다.
+
+* (게임 종료) => end_final
+
+::end_final
