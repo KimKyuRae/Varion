@@ -2,10 +2,9 @@
 @background: images/bg1.png
 @characters: images/npc1.png
 @who: NPC
+@next: next_example
 
 안녕하세요! 이곳은 Varion의 기본 예시입니다.
-
-* 다음으로 가기 => next_example
 
 ::next_example
 @background: images/bg2.png
